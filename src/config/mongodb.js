@@ -28,11 +28,11 @@ export const CONNECT_DB = async () => {
   trelloDatabaseInstance = mongoClientInstance.db(env.DATABASE_NAME)
 }
 
+
 // Function GET_DB này có nhiệm vụ export ra trelloDatabaseInstance sau khi đã connect tới MongoDB để chúng ta tái sử dụng ở nhiều nơi khác nhau
 // Lưu ý: phải đảm bảo chỉ luôn gọi hàm getDB này sau khi đã kết nối tới MongoDB
-
 export const GET_DB = () => {
-  if (!trelloDatabaseInstance) throw new Error('Must connect to Database first')
+  if (!trelloDatabaseInstance) throw new Error('Must connect to Database first')// nếu không tồn tại trelloDatabaseInstance thì xuất hiện lỗi
   return trelloDatabaseInstance
 }
 
