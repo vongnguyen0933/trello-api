@@ -4,14 +4,16 @@ import exitHook from 'async-exit-hook'
 import { CONNECT_DB, GET_DB, CLOSE_DB } from '~/config/mongodb'
 import 'dotenv/config'
 import { env } from '~/config/environment'
+import { APIs_V1 } from './routes/v1'
 
 const START_SEVER = () => {
   const app = express()
 
+  app.use(express.json())
 
-  app.get('/', async (req, res) => {
-    res.end('<h1>Hello World!</h1><hr>')
-  })
+  //Use API v1
+  app.use('/v1', APIs_V1)
+
 
   app.listen(env.APP_PORT, () => {
     console.log(`3. Back-end sever is running successfully, I am running at localhost:${env.APP_PORT}/`)
