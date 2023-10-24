@@ -17,4 +17,6 @@ Router.get('/status', (req, res) => {
 
 // Check API board
 Router.use('/boards', boardRoute)
+
+
 export const APIs_V1 = Router

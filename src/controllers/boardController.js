@@ -5,18 +5,12 @@
  */
 
 import { StatusCodes } from 'http-status-codes'
+import ApiError from '~/utils/ApiError'
 
 const createNew = async (req, res, next) => {
-
   try {
-    console.log(req.body)
-    res.status(StatusCodes.CREATED).json({ message: 'POST from Validation: API create new board' })
-  } catch (error) {
-    console.log(error)
-    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-      errors: error.message
-    })
-  }
+    throw new ApiError(StatusCodes.BAD_GATEWAY, 'Something broken')
+  } catch (error) { next(error) }
 }
 
 
