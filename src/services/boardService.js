@@ -1,11 +1,6 @@
 /* eslint-disable no-useless-catch */
-/**
- * Updated by trungquandev.com's author on August 17 2023
- * YouTube: https://youtube.com/@trungquandev
- * "A bit of fragrance clings to the hand that gives flowers!"
- */
-
 import { slugify } from '~/utils/formatters'
+import { boardModel } from '~/models/boardModel'
 
 const createNew = async (reqBody) => {
 
@@ -15,10 +10,14 @@ const createNew = async (reqBody) => {
       ...reqBody,
       slug: slugify(reqBody.title)
     }
+    // Gọi tới tầng Model để xử lý lưu bản ghi newBoard vào trong Database
+    const createdBoard = await boardModel.createNew(newBoard)
 
+    // lấy bản board sau khi gọi(tuỳ từng dự án)
+    const getNewBoard = await boardModel.findOneById(createdBoard.insertedId)
 
     // Trả kết quả về , service luôn có return trả về
-    return newBoard
+    return getNewBoard
 
   } catch (error) { throw error }
 }
