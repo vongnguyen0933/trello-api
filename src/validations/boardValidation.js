@@ -11,7 +11,8 @@ const createNew = async (req, res, next) => {
       'string.max': 'should have a minimum length of 5',
       'string.trim': 'should be a type of text'
     }),
-    description: Joi.string().required().min(3).max(256).trim().strict()
+    description: Joi.string().required().min(3).max(256).trim().strict(),
+    type: Joi.string().valid('public', 'private').required()
   })
 
   try {
