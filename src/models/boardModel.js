@@ -5,7 +5,6 @@ import { GET_DB } from '~/config/mongodb'
 import { columnModel } from '~/models/columnModel'
 import { cardModel } from '~/models/cardModel'
 
-
 // Defince Collection (Name & Schema)
 
 const BOARD_COLLECTION_NAME = 'boards'
@@ -74,7 +73,19 @@ const getDetails = async (id) => {
         }
       }
     ]).toArray()
-    return result[0] || {}
+    return result[0] || null
+  } catch (error) { throw new Error(error) }
+}
+
+// push một giá trị columnId vào cuối mảng columnOrderedIds
+const pushColumnOrderedIds = async (column) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(column.boardId) },
+      { $push: { columnOrderIds: new ObjectId(column._id) } },
+      { returnDocument: 'after' }
+    )
+    return result.value || null
   } catch (error) { throw new Error(error) }
 }
 
@@ -83,5 +94,6 @@ export const boardModel = {
   BOARD_COLLECTION_SCHEMA,
   createNew,
   findOneById,
-  getDetails
+  getDetails,
+  pushColumnOrderedIds
 }
