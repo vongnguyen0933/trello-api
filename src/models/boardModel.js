@@ -5,7 +5,6 @@ import { GET_DB } from '~/config/mongodb'
 import { columnModel } from '~/models/columnModel'
 import { cardModel } from '~/models/cardModel'
 
-
 // Defince Collection (Name & Schema)
 
 const BOARD_COLLECTION_NAME = 'boards'
@@ -24,6 +23,9 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
 })
+
+//Chỉ ra những trường mà chúng ta không muốn cập nhập trong hàm update()
+const INVALID_UPDATE_FIELDS = ['_id', 'createdAt']
 
 const validateBeforeCreate = async (data) => {
   return await BOARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
@@ -74,7 +76,37 @@ const getDetails = async (id) => {
         }
       }
     ]).toArray()
-    return result[0] || {}
+    return result[0] || null
+  } catch (error) { throw new Error(error) }
+}
+
+// push một giá trị columnId vào cuối mảng columnOrderedIds
+const pushColumnOrderedIds = async (column) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(column.boardId) },
+      { $push: { columnOrderIds: new ObjectId(column._id) } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
+const update = async (boardId, updateData) => {
+  try {
+    Object.keys(updateData).forEach(fieldName => {
+      if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
+        delete updateData[fieldName]
+      }
+    })
+    console.log(updateData)
+
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(boardId) },
+      { $set: updateData },
+      { returnDocument: 'after' } // Sẽ trả về kết quả mới sau khi cập nhật
+    )
+    return result
   } catch (error) { throw new Error(error) }
 }
 
@@ -83,5 +115,7 @@ export const boardModel = {
   BOARD_COLLECTION_SCHEMA,
   createNew,
   findOneById,
-  getDetails
+  getDetails,
+  pushColumnOrderedIds,
+  update
 }
