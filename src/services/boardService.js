@@ -1,6 +1,8 @@
 /* eslint-disable no-useless-catch */
 import { slugify } from '~/utils/formatters'
 import { boardModel } from '~/models/boardModel'
+import { columnModel } from '~/models/columnModel'
+import { cardModel } from '~/models/cardModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 import { cloneDeep } from 'lodash'
@@ -36,7 +38,7 @@ const getDetails = async (boardId) => {
 
     // Đưa card đúng column của nó
     resBoard.columns.forEach((column) => {
-      column.cards = resBoard.cards.filter((card) => card.columnId.toString() === column._id.toString())
+      column.cards = resBoard.cards.filter((card) => card.columnId.equals(column._id))
     })
 
     //Xoá mảng card về đúng column ban đầu
@@ -57,10 +59,31 @@ const update = async (boardId, reqBody) => {
     return updatedBoard
   } catch (error) { throw error }
 }
+const moveCardToDifferentColum = async (reqBody) => {
+  try {
+    await columnModel.update(reqBody.prevColumnId, {
+      cardOrderIds: reqBody.prevCardOrderIds,
+      updatedAt: Date.now()
+    })
+
+    await columnModel.update(reqBody.nextColumnId, {
+      cardOrderIds: reqBody.nextCardOrderIds,
+      updatedAt: Date.now()
+    })
+
+    await cardModel.update(reqBody.currentCardId, {
+      columnId: reqBody.nextColumnId
+    })
+
+
+    return { updateResult: 'Successfully!' }
+  } catch (error) { throw error }
+}
 
 export const boardService = {
   createNew,
   getDetails,
-  update
+  update,
+  moveCardToDifferentColum
 }
 

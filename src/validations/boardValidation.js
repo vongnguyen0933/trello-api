@@ -67,8 +67,35 @@ const update = async (req, res, next) => {
   }
   //   res.status(StatusCodes.CREATED).json({ message: 'POST: API create new board' })
 }
+const moveCardToDifferentColum = async (req, res, next) => {
+  // Lưu ý không dùng hàm required trong trường hợp update
+  const correctCondition = Joi.object({
+    currentCardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
 
+    prevColumnId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    prevCardOrderIds: Joi.array().required().items(
+      Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+    ),
+    nextColumnId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    nextCardOrderIds: Joi.array().required().items(
+      Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+    )
+  })
+
+  try {
+    //abortEarly: false để trường hợp nó có nhiều lỗi validation thì sẽ trả về nhiều lỗi
+    //abortEarly: true (mặc định) nó sẽ trả về 1 lỗi đầu tiên mà gặp
+    //allowUnknow: đối với trường hợp update , cho phép Unknow để không cần đẩy một số field lên
+    await correctCondition.validateAsync(req.body, { abortEarly: false })
+
+    next()
+
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+  }
+}
 export const boardValidation = {
   createNew,
-  update
+  update,
+  moveCardToDifferentColum
 }
